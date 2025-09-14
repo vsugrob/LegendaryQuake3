@@ -95,10 +95,14 @@ vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
 #endif
+vmCvar_t	g_legendary;
 
 static cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
 	{ &g_cheats, "sv_cheats", "", 0, 0, qfalse },
+
+	// Legendary mode (0 = off, 1 = on)
+	{ &g_legendary, "g_legendary", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse },
 
 	// noset vars
 	{ NULL, "gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },

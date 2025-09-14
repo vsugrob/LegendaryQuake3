@@ -747,6 +747,9 @@ extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
 extern	vmCvar_t	g_localTeamPref;
 
+// Legendary mode cvar
+extern vmCvar_t g_legendary;
+
 void	trap_Print( const char *text );
 void	trap_Error( const char *text ) Q_NO_RETURN;
 int		trap_Milliseconds( void );

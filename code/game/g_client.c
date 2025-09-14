@@ -1036,23 +1036,26 @@ void ClientBegin( int clientNum ) {
 ===========
 ResetPlayerWeaponsForLegendaryMode
 
-Resets all player weapons to default Legendary mode loadout:
-- Removes all weapons except gauntlet
-- Gives railgun with 999 ammo
+Resets all player weapons to default Legendary mode loadout if g_legendary is enabled:
+- When enabled: Removes all weapons except gauntlet and gives railgun with 999 ammo
+- When disabled: Does nothing (uses default weapon loadout)
 ============
 */
 void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
+	// Only apply legendary mode if g_legendary is enabled
+	if (!g_legendary.integer) return;
+
 	// Clear all weapons
 	client->ps.stats[STAT_WEAPONS] = 0;
-	
+		
 	// Give gauntlet (unlimited ammo)
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
-	
+		
 	// Give railgun with 999 ammo
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
 	client->ps.ammo[WP_RAILGUN] = 999;
-	
+		
 	// Select railgun
 	client->ps.weapon = WP_RAILGUN;
 	client->ps.weaponstate = WEAPON_READY;
