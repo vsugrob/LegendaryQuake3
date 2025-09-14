@@ -1037,11 +1037,25 @@ void ClientBegin( int clientNum ) {
 ResetPlayerWeaponsForLegendaryMode
 
 Resets all player weapons to default Legendary mode loadout if g_legendary is enabled:
-- When enabled: Removes all weapons except gauntlet and gives railgun with 999 ammo
+- When enabled: Removes all weapons except gauntlet and gives a random weapon with full ammo
 - When disabled: Does nothing (uses default weapon loadout)
 ============
 */
 void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
+	// Array of available weapons for legendary mode
+	const int weaponList[] = {
+		WP_MACHINEGUN,
+		WP_SHOTGUN,
+		WP_GRENADE_LAUNCHER,
+		WP_ROCKET_LAUNCHER,
+		WP_LIGHTNING,
+		WP_RAILGUN,
+		WP_PLASMAGUN,
+		WP_BFG
+	};
+	int weaponIndex;
+	int selectedWeapon;
+
 	// Only apply legendary mode if g_legendary is enabled
 	if (!g_legendary.integer) return;
 
@@ -1051,13 +1065,17 @@ void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
 	// Give gauntlet (unlimited ammo)
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
+
+	// Select a random weapon from the list using Q3's Q_rand()
+	weaponIndex = Q_rand(NULL) % (sizeof(weaponList) / sizeof(weaponList[0]));
+	selectedWeapon = weaponList[weaponIndex];
+	
+	// Give the selected weapon with full ammo
+	client->ps.stats[STAT_WEAPONS] |= (1 << selectedWeapon);
+	client->ps.ammo[selectedWeapon] = -1;
 		
-	// Give railgun with 999 ammo
-	client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
-	client->ps.ammo[WP_RAILGUN] = 999;
-		
-	// Select railgun
-	client->ps.weapon = WP_RAILGUN;
+	// Select the weapon
+	client->ps.weapon = selectedWeapon;
 	client->ps.weaponstate = WEAPON_READY;
 }
 
