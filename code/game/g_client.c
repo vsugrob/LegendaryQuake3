@@ -1042,19 +1042,27 @@ Resets all player weapons to default Legendary mode loadout if g_legendary is en
 ============
 */
 void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
-	// Array of available weapons for legendary mode
-	const int weaponList[] = {
-		WP_MACHINEGUN,
-		WP_SHOTGUN,
-		WP_GRENADE_LAUNCHER,
-		WP_ROCKET_LAUNCHER,
-		WP_LIGHTNING,
-		WP_RAILGUN,
-		WP_PLASMAGUN,
-		WP_BFG
+	// Weapon definitions with their respective chances (must sum to 1.0)
+	typedef struct {
+		int weapon;
+		float chance;
+		float cumulativeChance;
+	} weaponChance_t;
+	
+	weaponChance_t weapons[] = {
+		{ WP_MACHINEGUN,      0.20f, 0.00f },
+		{ WP_SHOTGUN,         0.17f, 0.00f },
+		{ WP_GRENADE_LAUNCHER,0.03f, 0.00f },
+		{ WP_ROCKET_LAUNCHER, 0.20f, 0.00f },
+		{ WP_LIGHTNING,       0.14f, 0.00f },
+		{ WP_RAILGUN,         0.10f, 0.00f },
+		{ WP_PLASMAGUN,       0.14f, 0.00f },
+		{ WP_BFG,             0.02f, 0.00f }
 	};
-	int weaponIndex;
+	const int numWeapons = sizeof(weapons) / sizeof(weapons[0]);
+	int i;
 	int selectedWeapon;
+	float total, randomValue;
 
 	// Only apply legendary mode if g_legendary is enabled
 	if (!g_legendary.integer) return;
@@ -1066,11 +1074,26 @@ void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
 
-	// Select a random weapon from the list using Q3's Q_rand()
-	weaponIndex = Q_rand(NULL) % (sizeof(weaponList) / sizeof(weaponList[0]));
-	selectedWeapon = weaponList[weaponIndex];
+	// Calculate cumulative chances
+	total = 0.0f;
+	for (i = 0; i < numWeapons; i++) {
+		total += weapons[i].chance;
+		weapons[i].cumulativeChance = total;
+	}
+
+	// Generate a random number between 0 and 1
+	randomValue = random();
 	
-	// Give the selected weapon with full ammo
+	// Select weapon based on weighted chance
+	selectedWeapon = weapons[0].weapon; // Default to first weapon
+	for (i = 0; i < numWeapons; i++) {
+		if (randomValue <= weapons[i].cumulativeChance) {
+			selectedWeapon = weapons[i].weapon;
+			break;
+		}
+	}
+	
+	// Give the selected weapon with unlimited ammo
 	client->ps.stats[STAT_WEAPONS] |= (1 << selectedWeapon);
 	client->ps.ammo[selectedWeapon] = -1;
 		
