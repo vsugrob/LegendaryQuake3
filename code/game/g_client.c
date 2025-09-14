@@ -1093,9 +1093,9 @@ void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
 		}
 	}
 	
-	// Give the selected weapon with unlimited ammo
+	// Give the selected weapon with full ammo
 	client->ps.stats[STAT_WEAPONS] |= (1 << selectedWeapon);
-	client->ps.ammo[selectedWeapon] = -1;
+	client->ps.ammo[selectedWeapon] = 999;
 		
 	// Select the weapon
 	client->ps.weapon = selectedWeapon;
