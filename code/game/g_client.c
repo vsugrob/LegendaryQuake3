@@ -1034,6 +1034,32 @@ void ClientBegin( int clientNum ) {
 
 /*
 ===========
+ResetPlayerWeaponsForLegendaryMode
+
+Resets all player weapons to default Legendary mode loadout:
+- Removes all weapons except gauntlet
+- Gives railgun with 999 ammo
+============
+*/
+void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
+	// Clear all weapons
+	client->ps.stats[STAT_WEAPONS] = 0;
+	
+	// Give gauntlet (unlimited ammo)
+	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
+	client->ps.ammo[WP_GAUNTLET] = -1;
+	
+	// Give railgun with 999 ammo
+	client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
+	client->ps.ammo[WP_RAILGUN] = 999;
+	
+	// Select railgun
+	client->ps.weapon = WP_RAILGUN;
+	client->ps.weaponstate = WEAPON_READY;
+}
+
+/*
+===========
 ClientSpawn
 
 Called every time a client is placed fresh in the world:
@@ -1240,6 +1266,9 @@ void ClientSpawn(gentity_t *ent) {
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+
+	// Reset weapons for Legendary game mode
+	ResetPlayerWeaponsForLegendaryMode(client);
 }
 
 
