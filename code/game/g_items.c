@@ -893,6 +893,12 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	if ( G_ItemDisabled(item) )
 		return;
 
+	// Skip weapons and ammo in legendary mode
+	if (g_legendary.integer &&
+		(item->giType == IT_WEAPON || item->giType == IT_AMMO)) {
+		return;
+	}
+
 	ent->item = item;
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
