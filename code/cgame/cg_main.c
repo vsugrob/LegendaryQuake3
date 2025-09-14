@@ -185,6 +185,7 @@ vmCvar_t	cg_oldRail;
 vmCvar_t	cg_oldRocket;
 vmCvar_t	cg_oldPlasma;
 vmCvar_t	cg_trueLightning;
+vmCvar_t	cg_enemyColors;
 
 #ifdef MISSIONPACK
 vmCvar_t 	cg_redTeamName;
@@ -308,6 +309,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{ &cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{ &cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
+	{ &cg_enemyColors, "cg_enemyColors", "", CVAR_ARCHIVE },
 
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO},
