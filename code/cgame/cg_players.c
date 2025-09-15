@@ -2149,14 +2149,17 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isBodyPart ) {
+	qboolean isDead;
+
 	if ( state->powerups & ( 1 << PW_INVIS ) ) {
 		ent->customShader = cgs.media.invisShader;
 		trap_R_AddRefEntityToScene( ent );
 	} else {
 		if (isBodyPart) {
-			// Apply green tint (RGBA: 0, 255, 0, 255 - full green, fully opaque)
+			isDead = state->eFlags & EF_DEAD;
+			// Apply green tint
 			ent->shaderRGBA[0] = 0;   // R
-			ent->shaderRGBA[1] = 255; // G
+			ent->shaderRGBA[1] = isDead ? 25 : 255; // G
 			ent->shaderRGBA[2] = 0;   // B
 			ent->shaderRGBA[3] = 255; // A
 			ent->customShader = cgs_legendary.entityWhiteShader;
