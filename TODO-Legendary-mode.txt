@@ -1,5 +1,6 @@
-- Remove or decrease camera bobbing in response to receiving damage.
++ Remove or decrease camera bobbing in response to receiving damage.
   See to what degree it was reduced in osp mod.
+  UPD: tone down or make zeroed v_dmg_roll and v_dmg_pitch in the CG_DamageFeedback().
 - Make weapon not "ready" when player spawned.
 - Add randomization of other perks on spawn:
 -- Add health bonus randomization. Most chance will be given to "no health bonus".
