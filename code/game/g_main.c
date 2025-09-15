@@ -101,9 +101,6 @@ static cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
 	{ &g_cheats, "sv_cheats", "", 0, 0, qfalse },
 
-	// Legendary mode (0 = off, 1 = on)
-	{ &g_legendary, "g_legendary", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse },
-
 	// noset vars
 	{ NULL, "gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 	{ NULL, "gamedate", PRODUCT_DATE , CVAR_ROM, 0, qfalse  },
@@ -111,6 +108,9 @@ static cvarTable_t		gameCvarTable[] = {
 
 	// latched vars
 	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
+
+	// "Legendary" game mode (players spawned with random weapons)
+	{ &g_legendary, "g_legendary", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse },
 
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },

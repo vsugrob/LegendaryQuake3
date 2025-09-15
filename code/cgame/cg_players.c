@@ -1,4 +1,5 @@
 /*
+			// Apply green tint (RGBA: 0, 255, 0, 255 - full green, fully opaque)
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 
@@ -2147,23 +2148,21 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isBodyPart ) {
 
 	if ( state->powerups & ( 1 << PW_INVIS ) ) {
 		ent->customShader = cgs.media.invisShader;
 		trap_R_AddRefEntityToScene( ent );
 	} else {
-		/*
-		if ( state->eFlags & EF_KAMIKAZE ) {
-			if (team == TEAM_BLUE)
-				ent->customShader = cgs.media.blueKamikazeShader;
-			else
-				ent->customShader = cgs.media.redKamikazeShader;
+		if (isBodyPart) {
+			// Apply green tint (RGBA: 0, 255, 0, 255 - full green, fully opaque)
+			ent->shaderRGBA[0] = 0;   // R
+			ent->shaderRGBA[1] = 255; // G
+			ent->shaderRGBA[2] = 0;   // B
+			ent->shaderRGBA[3] = 255; // A
+			ent->customShader = cgs.media.whiteShader;
 			trap_R_AddRefEntityToScene( ent );
 		}
-		else {*/
-			trap_R_AddRefEntityToScene( ent );
-		//}
 
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
@@ -2326,7 +2325,7 @@ void CG_Player( centity_t *cent ) {
 	legs.renderfx = renderfx;
 	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
 
-	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team );
+	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qtrue );
 
 	// if the model failed, allow the default nullmodel to be displayed
 	if (!legs.hModel) {
@@ -2350,7 +2349,7 @@ void CG_Player( centity_t *cent ) {
 	torso.shadowPlane = shadowPlane;
 	torso.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team );
+	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qtrue);
 
 #ifdef MISSIONPACK
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
@@ -2576,7 +2575,7 @@ void CG_Player( centity_t *cent ) {
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
+	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qtrue);
 
 #ifdef MISSIONPACK
 	CG_BreathPuffs(cent, &head);
