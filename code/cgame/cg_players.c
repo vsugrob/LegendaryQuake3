@@ -2149,7 +2149,6 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isBodyPart ) {
-
 	if ( state->powerups & ( 1 << PW_INVIS ) ) {
 		ent->customShader = cgs.media.invisShader;
 		trap_R_AddRefEntityToScene( ent );
@@ -2160,9 +2159,10 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			ent->shaderRGBA[1] = 255; // G
 			ent->shaderRGBA[2] = 0;   // B
 			ent->shaderRGBA[3] = 255; // A
-			ent->customShader = cgs.media.whiteShader;
-			trap_R_AddRefEntityToScene( ent );
+			ent->customShader = cgs_legendary.entityWhiteShader;
 		}
+
+		trap_R_AddRefEntityToScene( ent );
 
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{

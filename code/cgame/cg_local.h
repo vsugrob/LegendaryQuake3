@@ -982,7 +982,6 @@ typedef struct {
 	sfxHandle_t	wstbimpmSound;
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
-
 } cgMedia_t;
 
 
@@ -1075,9 +1074,14 @@ typedef struct {
 
 } cgs_t;
 
+typedef struct {
+	qhandle_t	entityWhiteShader;
+} cgs_legendary_t;
+
 //==============================================================================
 
 extern	cgs_t			cgs;
+extern	cgs_legendary_t cgs_legendary;
 extern	cg_t			cg;
 extern	centity_t		cg_entities[MAX_GENTITIES];
 extern	weaponInfo_t	cg_weapons[MAX_WEAPONS];
