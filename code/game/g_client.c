@@ -30,14 +30,22 @@ static vec3_t	playerMaxs = {15, 15, 32};
 
 // Chances for legendary game mode
 weaponChance_t g_weaponChances[] = {
-	{ WP_MACHINEGUN,      0.20f },
-	{ WP_SHOTGUN,         0.17f },
-	{ WP_GRENADE_LAUNCHER,0.03f },
-	{ WP_ROCKET_LAUNCHER, 0.20f },
-	{ WP_LIGHTNING,       0.14f },
-	{ WP_RAILGUN,         0.10f },
-	{ WP_PLASMAGUN,       0.14f },
-	{ WP_BFG,             0.02f }
+	{ WP_MACHINEGUN,       0.20f },
+	{ WP_SHOTGUN,          0.17f },
+	{ WP_GRENADE_LAUNCHER, 0.03f },
+	{ WP_ROCKET_LAUNCHER,  0.20f },
+	{ WP_LIGHTNING,        0.14f },
+	{ WP_RAILGUN,          0.10f },
+	{ WP_PLASMAGUN,        0.14f },
+	{ WP_BFG,              0.02f }
+};
+
+powerupChance_t g_powerupChances[] = {
+	{ PW_QUAD,             0.03f },
+	{ PW_HASTE,            0.04f },
+	{ PW_INVIS,            0.01f },
+	{ PW_REGEN,            0.04f },
+	{ PW_NONE,             0.88f },
 };
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
@@ -1052,11 +1060,12 @@ Resets all player weapons to default Legendary mode loadout if g_legendary is en
 - When disabled: Does nothing (uses default weapon loadout)
 ============
 */
-static void GiveWeaponForLegendaryModeSpawn(gclient_t* client) {
+static void GiveWeaponForLegendaryModeSpawn(gentity_t* ent) {
 	const int numWeapons = sizeof(g_weaponChances) / sizeof(g_weaponChances[0]);
 	int i;
 	int selectedWeapon;
 	float cumulativeChance, randomValue;
+	gclient_t* client = ent->client;
 
 	// Clear all weapons
 	client->ps.stats[STAT_WEAPONS] = 0;
@@ -1090,11 +1099,57 @@ static void GiveWeaponForLegendaryModeSpawn(gclient_t* client) {
 	client->ps.torsoAnim = TORSO_RAISE;
 }
 
-static void ProcessLegendaryModeSpawn(gclient_t *client) {
+static void GivePowerUpForLegendaryModeSpawn(gentity_t* ent) {
+	const int numPowerups = sizeof(g_powerupChances) / sizeof(g_powerupChances[0]);
+	int i;
+	int selectedPowerup;
+	float cumulativeChance, randomValue;
+	gitem_t* powerupItem;
+	gentity_t* itemEntity;
+	trace_t trace;
+	gclient_t* client = ent->client;
+
+	// Generate a random number between 0 and 1
+	randomValue = random();
+
+	// Select weapon based on weighted chance
+	cumulativeChance = 0.0f;
+	selectedPowerup = g_powerupChances[0].powerup;
+	for (i = 0; i < numPowerups; i++) {
+		cumulativeChance += g_powerupChances[i].chance;
+		if (randomValue <= cumulativeChance) {
+			selectedPowerup = g_powerupChances[i].powerup;
+			break;
+		}
+	}
+
+	if (!selectedPowerup) {
+		return;
+	}
+
+	powerupItem = BG_FindItemForPowerup(selectedPowerup);
+	if (!powerupItem) {
+		return;
+	}
+
+	itemEntity = G_Spawn();
+	VectorCopy(client->ps.origin, itemEntity->s.origin);
+	itemEntity->classname = powerupItem->classname;
+	G_SpawnItem(itemEntity, powerupItem);
+	FinishSpawningItem(itemEntity);
+	memset(&trace, 0, sizeof(trace));
+	Touch_Item(itemEntity, ent, &trace);
+	if (itemEntity->inuse) {
+		G_FreeEntity(itemEntity);
+	}
+}
+
+static void ProcessLegendaryModeSpawn(gentity_t* ent) {
 	// Only apply legendary mode if g_legendary is enabled
 	if (!g_legendary.integer) return;
 
-	GiveWeaponForLegendaryModeSpawn(client);
+	GiveWeaponForLegendaryModeSpawn(ent);
+	GivePowerUpForLegendaryModeSpawn(ent);
 }
 
 /*
@@ -1281,7 +1336,7 @@ void ClientSpawn(gentity_t *ent) {
 				}
 			}
 
-			ProcessLegendaryModeSpawn(client);
+			ProcessLegendaryModeSpawn(ent);
 
 			// positively link the client, even if the command times are weird
 			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);

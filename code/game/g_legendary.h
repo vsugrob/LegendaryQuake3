@@ -3,3 +3,8 @@ typedef struct {
 	int weapon;
 	float chance;
 } weaponChance_t;
+
+typedef struct {
+	int powerup;
+	float chance;
+} powerupChance_t;
