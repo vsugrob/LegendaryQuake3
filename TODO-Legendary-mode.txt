@@ -2,9 +2,9 @@
   See to what degree it was reduced in osp mod.
   UPD: tone down or make zeroed v_dmg_roll and v_dmg_pitch in the CG_DamageFeedback().
 + Make weapon not "ready" when player spawned.
-- Add randomization of other perks on spawn:
--- Add health bonus randomization. Most chance will be given to "no health bonus".
--- Add armor randomization. Most chance will be given to "no armor bonus".
++ Add randomization of other bonuses on spawn:
+++ Add health bonus randomization. Most chance will be given to "no health bonus".
+++ Add armor randomization. Most chance will be given to "no armor bonus".
 ++ Add power-up bonus (quad/invis/haste, etc). Most chance will be given to "no power up bonus".
 + Make "g_legendary" cvar set to "1" by default in Legendary mod.
 - Show spawn rarity - icon of the weapon, icon of health/armor bonus,

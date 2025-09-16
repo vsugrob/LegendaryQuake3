@@ -49,6 +49,19 @@ itemChance_t g_powerupChances[] = {
 	NULL
 };
 
+itemChance_t g_healthChances[] = {
+	{ "Mega Health",       0.10f },
+	{ NULL,                0.95f },
+	NULL
+};
+
+itemChance_t g_armorChances[] = {
+	{ "Armor",             0.15f },	// Yellow armor (+50 armor)
+	{ "Heavy Armor",       0.10f },	// Red armor (+100 armor)
+	{ NULL,                0.75f },
+	NULL
+};
+
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
 The first time a player enters the game, they will be at an 'initial' spot.
@@ -1151,6 +1164,8 @@ static void ProcessLegendaryModeSpawn(gentity_t* ent) {
 
 	GiveWeaponForLegendaryModeSpawn(ent);
 	GiveItemForLegendaryModeSpawn(ent, g_powerupChances);
+	GiveItemForLegendaryModeSpawn(ent, g_healthChances);
+	GiveItemForLegendaryModeSpawn(ent, g_armorChances);
 }
 
 /*
