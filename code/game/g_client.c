@@ -1099,7 +1099,9 @@ void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
 		
 	// Select the weapon
 	client->ps.weapon = selectedWeapon;
-	client->ps.weaponstate = WEAPON_READY;
+	client->ps.weaponstate = WEAPON_RAISING;
+	client->ps.weaponTime = 500;
+	client->ps.torsoAnim = TORSO_RAISE;
 }
 
 /*
@@ -1285,6 +1287,9 @@ void ClientSpawn(gentity_t *ent) {
 					break;
 				}
 			}
+
+			ResetPlayerWeaponsForLegendaryMode(client);
+
 			// positively link the client, even if the command times are weird
 			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
 
@@ -1310,9 +1315,6 @@ void ClientSpawn(gentity_t *ent) {
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-
-	// Reset weapons for Legendary game mode
-	ResetPlayerWeaponsForLegendaryMode(client);
 }
 
 
