@@ -21,11 +21,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //
 #include "g_local.h"
+#include "g_legendary.h"
 
 // g_client.c -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, -24};
 static vec3_t	playerMaxs = {15, 15, 32};
+
+// Chances for legendary game mode
+weaponChance_t g_weaponChances[] = {
+	{ WP_MACHINEGUN,      0.20f },
+	{ WP_SHOTGUN,         0.17f },
+	{ WP_GRENADE_LAUNCHER,0.03f },
+	{ WP_ROCKET_LAUNCHER, 0.20f },
+	{ WP_LIGHTNING,       0.14f },
+	{ WP_RAILGUN,         0.10f },
+	{ WP_PLASMAGUN,       0.14f },
+	{ WP_BFG,             0.02f }
+};
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
@@ -1034,74 +1047,54 @@ void ClientBegin( int clientNum ) {
 
 /*
 ===========
-ResetPlayerWeaponsForLegendaryMode
-
 Resets all player weapons to default Legendary mode loadout if g_legendary is enabled:
 - When enabled: Removes all weapons except gauntlet and gives a random weapon with full ammo
 - When disabled: Does nothing (uses default weapon loadout)
 ============
 */
-void ResetPlayerWeaponsForLegendaryMode(gclient_t *client) {
-	// Weapon definitions with their respective chances (must sum to 1.0)
-	typedef struct {
-		int weapon;
-		float chance;
-		float cumulativeChance;
-	} weaponChance_t;
-	
-	weaponChance_t weapons[] = {
-		{ WP_MACHINEGUN,      0.20f, 0.00f },
-		{ WP_SHOTGUN,         0.17f, 0.00f },
-		{ WP_GRENADE_LAUNCHER,0.03f, 0.00f },
-		{ WP_ROCKET_LAUNCHER, 0.20f, 0.00f },
-		{ WP_LIGHTNING,       0.14f, 0.00f },
-		{ WP_RAILGUN,         0.10f, 0.00f },
-		{ WP_PLASMAGUN,       0.14f, 0.00f },
-		{ WP_BFG,             0.02f, 0.00f }
-	};
-	const int numWeapons = sizeof(weapons) / sizeof(weapons[0]);
+static void GiveWeaponForLegendaryModeSpawn(gclient_t* client) {
+	const int numWeapons = sizeof(g_weaponChances) / sizeof(g_weaponChances[0]);
 	int i;
 	int selectedWeapon;
-	float total, randomValue;
-
-	// Only apply legendary mode if g_legendary is enabled
-	if (!g_legendary.integer) return;
+	float cumulativeChance, randomValue;
 
 	// Clear all weapons
 	client->ps.stats[STAT_WEAPONS] = 0;
-		
+
 	// Give gauntlet (unlimited ammo)
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
 
-	// Calculate cumulative chances
-	total = 0.0f;
-	for (i = 0; i < numWeapons; i++) {
-		total += weapons[i].chance;
-		weapons[i].cumulativeChance = total;
-	}
-
 	// Generate a random number between 0 and 1
 	randomValue = random();
-	
+
 	// Select weapon based on weighted chance
-	selectedWeapon = weapons[0].weapon; // Default to first weapon
+	cumulativeChance = 0.0f;
+	selectedWeapon = g_weaponChances[0].weapon; // Default to first weapon
 	for (i = 0; i < numWeapons; i++) {
-		if (randomValue <= weapons[i].cumulativeChance) {
-			selectedWeapon = weapons[i].weapon;
+		cumulativeChance += g_weaponChances[i].chance;
+		if (randomValue <= cumulativeChance) {
+			selectedWeapon = g_weaponChances[i].weapon;
 			break;
 		}
 	}
-	
+
 	// Give the selected weapon with full ammo
 	client->ps.stats[STAT_WEAPONS] |= (1 << selectedWeapon);
 	client->ps.ammo[selectedWeapon] = 999;
-		
+
 	// Select the weapon
 	client->ps.weapon = selectedWeapon;
 	client->ps.weaponstate = WEAPON_RAISING;
 	client->ps.weaponTime = 500;
 	client->ps.torsoAnim = TORSO_RAISE;
+}
+
+static void ProcessLegendaryModeSpawn(gclient_t *client) {
+	// Only apply legendary mode if g_legendary is enabled
+	if (!g_legendary.integer) return;
+
+	GiveWeaponForLegendaryModeSpawn(client);
 }
 
 /*
@@ -1288,7 +1281,7 @@ void ClientSpawn(gentity_t *ent) {
 				}
 			}
 
-			ResetPlayerWeaponsForLegendaryMode(client);
+			ProcessLegendaryModeSpawn(client);
 
 			// positively link the client, even if the command times are weird
 			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
