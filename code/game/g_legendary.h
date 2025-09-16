@@ -5,6 +5,6 @@ typedef struct {
 } weaponChance_t;
 
 typedef struct {
-	int powerup;
+	char *pickup_name;
 	float chance;
-} powerupChance_t;
+} itemChance_t;

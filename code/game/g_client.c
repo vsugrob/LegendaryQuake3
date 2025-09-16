@@ -40,12 +40,13 @@ weaponChance_t g_weaponChances[] = {
 	{ WP_BFG,              0.02f }
 };
 
-powerupChance_t g_powerupChances[] = {
-	{ PW_QUAD,             0.03f },
-	{ PW_HASTE,            0.04f },
-	{ PW_INVIS,            0.01f },
-	{ PW_REGEN,            0.04f },
-	{ PW_NONE,             0.88f },
+itemChance_t g_powerupChances[] = {
+	{ "Quad Damage",       0.03f },
+	{ "Speed",             0.04f },
+	{ "Invisibility",      0.01f },
+	{ "Regeneration",      0.04f },
+	{ NULL,                0.88f },
+	NULL
 };
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
@@ -1060,7 +1061,7 @@ Resets all player weapons to default Legendary mode loadout if g_legendary is en
 - When disabled: Does nothing (uses default weapon loadout)
 ============
 */
-static void GiveWeaponForLegendaryModeSpawn(gentity_t* ent) {
+static void GiveWeaponForLegendaryModeSpawn(gentity_t *ent) {
 	const int num_weapons = sizeof(g_weaponChances) / sizeof(g_weaponChances[0]);
 	int i;
 	int selected_weapon;
@@ -1099,10 +1100,8 @@ static void GiveWeaponForLegendaryModeSpawn(gentity_t* ent) {
 	client->ps.torsoAnim = TORSO_RAISE;
 }
 
-static void GivePowerUpForLegendaryModeSpawn(gentity_t* ent) {
-	const int num_powerups = sizeof(g_powerupChances) / sizeof(g_powerupChances[0]);
-	int i;
-	int selected_powerup;
+static void GiveItemForLegendaryModeSpawn(gentity_t *ent, itemChance_t *item_chances) {
+	itemChance_t* selected_item;
 	float cumulative_chance, random_value;
 	gitem_t* powerup_item;
 	gentity_t* item_entity;
@@ -1114,20 +1113,21 @@ static void GivePowerUpForLegendaryModeSpawn(gentity_t* ent) {
 
 	// Select weapon based on weighted chance
 	cumulative_chance = 0.0f;
-	selected_powerup = g_powerupChances[0].powerup;
-	for (i = 0; i < num_powerups; i++) {
-		cumulative_chance += g_powerupChances[i].chance;
+	selected_item = item_chances;
+	while (selected_item) {
+		cumulative_chance += selected_item->chance;
 		if (random_value <= cumulative_chance) {
-			selected_powerup = g_powerupChances[i].powerup;
 			break;
 		}
+
+		selected_item++;
 	}
 
-	if (!selected_powerup) {
+	if (!selected_item) {
 		return;
 	}
 
-	powerup_item = BG_FindItemForPowerup(selected_powerup);
+	powerup_item = BG_FindItem(selected_item->pickup_name);
 	if (!powerup_item) {
 		return;
 	}
@@ -1150,7 +1150,7 @@ static void ProcessLegendaryModeSpawn(gentity_t* ent) {
 	if (!g_legendary.integer) return;
 
 	GiveWeaponForLegendaryModeSpawn(ent);
-	GivePowerUpForLegendaryModeSpawn(ent);
+	GiveItemForLegendaryModeSpawn(ent, g_powerupChances);
 }
 
 /*
