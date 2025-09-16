@@ -1061,10 +1061,10 @@ Resets all player weapons to default Legendary mode loadout if g_legendary is en
 ============
 */
 static void GiveWeaponForLegendaryModeSpawn(gentity_t* ent) {
-	const int numWeapons = sizeof(g_weaponChances) / sizeof(g_weaponChances[0]);
+	const int num_weapons = sizeof(g_weaponChances) / sizeof(g_weaponChances[0]);
 	int i;
-	int selectedWeapon;
-	float cumulativeChance, randomValue;
+	int selected_weapon;
+	float cumulative_chance, random_value;
 	gclient_t* client = ent->client;
 
 	// Clear all weapons
@@ -1075,72 +1075,73 @@ static void GiveWeaponForLegendaryModeSpawn(gentity_t* ent) {
 	client->ps.ammo[WP_GAUNTLET] = -1;
 
 	// Generate a random number between 0 and 1
-	randomValue = random();
+	random_value = random();
 
 	// Select weapon based on weighted chance
-	cumulativeChance = 0.0f;
-	selectedWeapon = g_weaponChances[0].weapon; // Default to first weapon
-	for (i = 0; i < numWeapons; i++) {
-		cumulativeChance += g_weaponChances[i].chance;
-		if (randomValue <= cumulativeChance) {
-			selectedWeapon = g_weaponChances[i].weapon;
+	cumulative_chance = 0.0f;
+	selected_weapon = g_weaponChances[0].weapon; // Default to first weapon
+	for (i = 0; i < num_weapons; i++) {
+		cumulative_chance += g_weaponChances[i].chance;
+		if (random_value <= cumulative_chance) {
+			selected_weapon = g_weaponChances[i].weapon;
 			break;
 		}
 	}
 
 	// Give the selected weapon with full ammo
-	client->ps.stats[STAT_WEAPONS] |= (1 << selectedWeapon);
-	client->ps.ammo[selectedWeapon] = 999;
+	client->ps.stats[STAT_WEAPONS] |= (1 << selected_weapon);
+	client->ps.ammo[selected_weapon] = 999;
 
 	// Select the weapon
-	client->ps.weapon = selectedWeapon;
+	client->ps.weapon = selected_weapon;
 	client->ps.weaponstate = WEAPON_RAISING;
 	client->ps.weaponTime = 500;
 	client->ps.torsoAnim = TORSO_RAISE;
 }
 
 static void GivePowerUpForLegendaryModeSpawn(gentity_t* ent) {
-	const int numPowerups = sizeof(g_powerupChances) / sizeof(g_powerupChances[0]);
+	const int num_powerups = sizeof(g_powerupChances) / sizeof(g_powerupChances[0]);
 	int i;
-	int selectedPowerup;
-	float cumulativeChance, randomValue;
-	gitem_t* powerupItem;
-	gentity_t* itemEntity;
+	int selected_powerup;
+	float cumulative_chance, random_value;
+	gitem_t* powerup_item;
+	gentity_t* item_entity;
 	trace_t trace;
 	gclient_t* client = ent->client;
 
 	// Generate a random number between 0 and 1
-	randomValue = random();
+	random_value = random();
 
 	// Select weapon based on weighted chance
-	cumulativeChance = 0.0f;
-	selectedPowerup = g_powerupChances[0].powerup;
-	for (i = 0; i < numPowerups; i++) {
-		cumulativeChance += g_powerupChances[i].chance;
-		if (randomValue <= cumulativeChance) {
-			selectedPowerup = g_powerupChances[i].powerup;
+	cumulative_chance = 0.0f;
+	selected_powerup = g_powerupChances[0].powerup;
+	for (i = 0; i < num_powerups; i++) {
+		cumulative_chance += g_powerupChances[i].chance;
+		if (random_value <= cumulative_chance) {
+			selected_powerup = g_powerupChances[i].powerup;
 			break;
 		}
 	}
 
-	if (!selectedPowerup) {
+	if (!selected_powerup) {
 		return;
 	}
 
-	powerupItem = BG_FindItemForPowerup(selectedPowerup);
-	if (!powerupItem) {
+	powerup_item = BG_FindItemForPowerup(selected_powerup);
+	if (!powerup_item) {
 		return;
 	}
 
-	itemEntity = G_Spawn();
-	VectorCopy(client->ps.origin, itemEntity->s.origin);
-	itemEntity->classname = powerupItem->classname;
-	G_SpawnItem(itemEntity, powerupItem);
-	FinishSpawningItem(itemEntity);
+	// Spawn item right on the player
+	item_entity = G_Spawn();
+	VectorCopy(client->ps.origin, item_entity->s.origin);
+	item_entity->classname = powerup_item->classname;
+	G_SpawnItem(item_entity, powerup_item);
+	FinishSpawningItem(item_entity);
 	memset(&trace, 0, sizeof(trace));
-	Touch_Item(itemEntity, ent, &trace);
-	if (itemEntity->inuse) {
-		G_FreeEntity(itemEntity);
+	Touch_Item(item_entity, ent, &trace);
+	if (item_entity->inuse) {
+		G_FreeEntity(item_entity);
 	}
 }
 
