@@ -1018,7 +1018,10 @@ static void CG_RegisterGraphics( void ) {
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' || cg_buildScript.integer ) {
+		gitem_t	*item;
+		item = &bg_itemlist[i];
+		// We need all powerups for "Legendary" game mode
+		if ( items[ i ] == '1' || cg_buildScript.integer || item->giType == IT_POWERUP ) {
 			CG_LoadingItem( i );
 			CG_RegisterItemVisuals( i );
 		}
