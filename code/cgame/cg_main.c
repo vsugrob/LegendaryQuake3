@@ -1020,8 +1020,14 @@ static void CG_RegisterGraphics( void ) {
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
 		gitem_t	*item;
 		item = &bg_itemlist[i];
-		// We need all powerups for "Legendary" game mode
-		if ( items[ i ] == '1' || cg_buildScript.integer || item->giType == IT_POWERUP ) {
+		// We need all powerups/health/armor for "Legendary" game mode.
+		// Any of these items can be given at player spawn.
+		if ( items[ i ] == '1' ||
+			 cg_buildScript.integer ||
+			item->giType == IT_POWERUP ||
+			item->giType == IT_HEALTH ||
+			item->giType == IT_ARMOR
+		) {
 			CG_LoadingItem( i );
 			CG_RegisterItemVisuals( i );
 		}
