@@ -341,6 +341,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	}
 
 	// add angles based on damage kick
+#if 0
 	if ( cg.damageTime ) {
 		ratio = cg.time - cg.damageTime;
 		if ( ratio < DAMAGE_DEFLECT_TIME ) {
@@ -355,6 +356,7 @@ static void CG_OffsetFirstPersonView( void ) {
 			}
 		}
 	}
+#endif
 
 	// add pitch based on fall kick
 #if 0
