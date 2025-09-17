@@ -17,3 +17,23 @@
 - Enhance build scripts:
 -- Make cmake script package qvms to "legendary/pak.pk3" archive of output.
 -- Package player colorizing shader into pak.pk3.
+
+- Make bot aiming more human-like.
+  I understand that nightmare bots must be brutal. It's not that hard to beat them,
+  but they have some specific traits making game more annoying than it should be.
+-- Lerp their aiming skill from ~0.2 to 1 in ~2 seconds after respawn.
+   This will prevent them hitting the bull's eye in 0.01 seconds
+   after seeing the world around.
+-- Account for how fast bot's target moving on their "screen".
+   Lower aiming skill proportionally to the speed of target.
+-- Think of some penalty to make bot aiming with machine gun and lighting less accurate.
+   Penalty must be based on general aiming difficulties
+   that human experiences in the same situation.
+   Do not just hardcode penalty for MG and LG.
+
+- Add new game content:
+-- Death Beam weapon: essentially the same as Railgun,
+   but with much wider ray. Very rare weapon.
+-- Amulet of Rebirth powerup: when player dies with this powerup,
+   it teleports to a random location on the map just like with Teleport wearable iteam,
+   and its health is regenerated to 100.
