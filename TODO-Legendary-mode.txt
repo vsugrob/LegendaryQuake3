@@ -7,6 +7,9 @@
 ++ Add armor randomization. Most chance will be given to "no armor bonus".
 ++ Add power-up bonus (quad/invis/haste, etc). Most chance will be given to "no power up bonus".
 + Make "g_legendary" cvar set to "1" by default in Legendary mod.
++ Fix ammo pickup can cause ammo clamping to 200 when it was above that value.
+  Not sure if it is the true reason of clamping though. Investigate it.
+- Implement cg_enemyModel.
 - Show spawn rarity - icon of the weapon, icon of health/armor bonus,
   icon of powerup. Show percentage right to each icon.
 -- Show total spawn rarity percentage.
