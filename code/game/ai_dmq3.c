@@ -1,4 +1,4 @@
-/*
+/*;
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 
@@ -3261,6 +3261,27 @@ int BotEnemyCubeCarrierVisible(bot_state_t *bs) {
 }
 #endif
 
+static int BG_GetWeaponReloadTime(const int weapon) {
+	switch (weapon) {
+	default:
+	case WP_GAUNTLET: return 400;
+	case WP_LIGHTNING: return 50;
+	case WP_SHOTGUN: return 1000;
+	case WP_MACHINEGUN: return 100;
+	case WP_GRENADE_LAUNCHER: return 800;
+	case WP_ROCKET_LAUNCHER: return 800;
+	case WP_PLASMAGUN: return 100;
+	case WP_RAILGUN: return 1500;
+	case WP_BFG: return 200;
+	case WP_GRAPPLING_HOOK: return 400;
+#ifdef MISSIONPACK
+	case WP_NAILGUN: return 1000;
+	case WP_PROX_LAUNCHER: return 800;
+	case WP_CHAINGUN: return 30;
+#endif
+	}
+}
+
 /*
 ==================
 BotAimAtEnemy
@@ -3345,8 +3366,9 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_BFG10K, 0, 1);
 		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_BFG10K, 0, 1);
 	}
-	//
+
 	if (aim_accuracy <= 0) aim_accuracy = 0.0001f;
+
 	//get the enemy entity information
 	BotEntityInfo(bs->enemy, &entinfo);
 	//if the enemy is invisible then shoot crappy most of the time
@@ -3366,8 +3388,21 @@ void BotAimAtEnemy(bot_state_t *bs) {
 
 	// Reduce accuracy based on target's lateral movement relative to bot's view
 	if (bot_humanized.integer) {
+		const int MAX_SPEED_FACTOR_RELOAD_TIME = 500;
+		const int MIN_SPEED_FACTOR_RELOAD_TIME = 50;
+		const int SPEED_FACTOR_RELOAD_RANGE = MAX_SPEED_FACTOR_RELOAD_TIME - MIN_SPEED_FACTOR_RELOAD_TIME;
+		const float MAX_SPEED_ACCURACY_REDUCTION = 0.28f; // Cap at 28% accuracy reduction
 		vec3_t bot_velocity, relative_velocity, lateral_velocity, forward, right, up;
 		float speed_factor, forward_speed;
+		float speed_factor_impact;
+		int weapon_reload_time;
+
+		// The more frequently a weapon fires, the greater the impact of velocity differences
+		weapon_reload_time = BG_GetWeaponReloadTime(wi.number);
+		speed_factor_impact = Com_Clamp(
+			0.0f, 1.0f,
+			(float)(weapon_reload_time - MIN_SPEED_FACTOR_RELOAD_TIME) / SPEED_FACTOR_RELOAD_RANGE);
+		speed_factor_impact = 1.0f - speed_factor_impact;
 		
 		// Get bot's velocity and orientation
 		VectorCopy(bs->cur_ps.velocity, bot_velocity);
@@ -3384,8 +3419,11 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		
 		// Calculate speed factor based only on lateral movement
 		speed_factor = VectorLength(lateral_velocity) / 800.0f;  // 800 units/s is considered fast lateral movement
-		speed_factor = Com_Clamp(0.0f, 0.35f, speed_factor);  // Cap at 35% accuracy reduction
-		
+		speed_factor = Com_Clamp(0.0f, MAX_SPEED_ACCURACY_REDUCTION, speed_factor);
+
+		// Modify by weapon fire frequency impact
+		speed_factor *= speed_factor_impact;
+
 		// Reduce accuracy based on lateral speed
 		aim_accuracy *= (1.0f - speed_factor);
 	}
