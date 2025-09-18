@@ -79,6 +79,7 @@ vmCvar_t bot_fastchat;
 vmCvar_t bot_nochat;
 vmCvar_t bot_testrchat;
 vmCvar_t bot_challenge;
+vmCvar_t bot_humanized;
 vmCvar_t bot_predictobstacles;
 vmCvar_t g_spSkill;
 
@@ -3362,6 +3363,33 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		VectorCopy(enemyvelocity, bs->enemyvelocity);
 		VectorCopy(entinfo.origin, bs->enemyorigin);
 	}
+
+	// Reduce accuracy based on target's lateral movement relative to bot's view
+	if (bot_humanized.integer) {
+		vec3_t bot_velocity, relative_velocity, lateral_velocity, forward, right, up;
+		float speed_factor, forward_speed;
+		
+		// Get bot's velocity and orientation
+		VectorCopy(bs->cur_ps.velocity, bot_velocity);
+		AngleVectors(bs->viewangles, forward, right, up);
+		
+		// Calculate relative velocity (enemy velocity - bot velocity)
+		VectorSubtract(enemyvelocity, bot_velocity, relative_velocity);
+		
+		// Project relative velocity onto bot's forward vector to get speed towards/away from bot
+		forward_speed = DotProduct(relative_velocity, forward);
+		
+		// Calculate lateral velocity (relative_velocity - forward_component)
+		VectorMA(relative_velocity, -forward_speed, forward, lateral_velocity);
+		
+		// Calculate speed factor based only on lateral movement
+		speed_factor = VectorLength(lateral_velocity) / 800.0f;  // 800 units/s is considered fast lateral movement
+		speed_factor = Com_Clamp(0.0f, 0.35f, speed_factor);  // Cap at 35% accuracy reduction
+		
+		// Reduce accuracy based on lateral speed
+		aim_accuracy *= (1.0f - speed_factor);
+	}
+
 	//if not extremely skilled
 	if (aim_skill < 0.9) {
 		VectorSubtract(entinfo.origin, bs->enemyorigin, dir);
@@ -5428,6 +5456,7 @@ void BotSetupDeathmatchAI(void) {
 	trap_Cvar_Register(&bot_nochat, "bot_nochat", "0", 0);
 	trap_Cvar_Register(&bot_testrchat, "bot_testrchat", "0", 0);
 	trap_Cvar_Register(&bot_challenge, "bot_challenge", "0", 0);
+	trap_Cvar_Register(&bot_humanized, "bot_humanized", "1", 0);
 	trap_Cvar_Register(&bot_predictobstacles, "bot_predictobstacles", "1", 0);
 	trap_Cvar_Register(&g_spSkill, "g_spSkill", "2", 0);
 	//
