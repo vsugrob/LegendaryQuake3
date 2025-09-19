@@ -35,7 +35,9 @@
 - Add new game content:
 -- Death Beam weapon: essentially the same as Railgun,
    but with much wider ray. Very rare weapon.
--- Amulet of Rebirth powerup: when player's health lowers to 0 while having this powerup,
+-- Magnetic powerup: player's projectiles slightly steer towards
+   closest enemy while player carrying this powerup.
+++ Amulet of Rebirth powerup: when player's health lowers to 0 while having this powerup,
    player teleports to a random location on the map just like with Teleport wearable iteam,
    and its health is regenerated to 100.
    UPD: it's stupid. Hard to distinguish from regular respawn.
